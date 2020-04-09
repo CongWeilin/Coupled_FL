@@ -7,7 +7,7 @@ global_iters: 200
 iid: 1
 local_batch_size: 10
 local_iters: 1
-lr: 0.1
+lr: 0.7
 num_active_devices: 10
 num_classes: 10
 num_devices: 30
