@@ -1,1 +1,6 @@
 .ipynb_checkpoints
+src/.ipynb_checkpoints
+src/__pycache__
+src/test_code
+src/*pdf
+src/*.pkl
