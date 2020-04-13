@@ -85,18 +85,20 @@ def generate_synthetic(alpha, beta, iid, num_user, dimension=60, num_class=10):
         else:
             mean_x[i] = np.random.normal(B[i], 1, dimension)
 
+    W_global = b_global = None
     if iid == 1:
         W_global = np.random.normal(0, 1, (dimension, num_class))
         b_global = np.random.normal(0, 1,  num_class)
 
     for i in range(num_user):
 
-        W = np.random.normal(mean_W[i], 1, (dimension, num_class))
-        b = np.random.normal(mean_b[i], 1,  num_class)
-
         if iid == 1:
+            assert W_global is not None and b_global is not None
             W = W_global
             b = b_global
+        else:
+            W = np.random.normal(mean_W[i], 1, (dimension, num_class))
+            b = np.random.normal(mean_b[i], 1,  num_class)
 
         xx = np.random.multivariate_normal(mean_x[i], cov_x, samples_per_user[i])
         yy = np.zeros(samples_per_user[i])
@@ -105,8 +107,8 @@ def generate_synthetic(alpha, beta, iid, num_user, dimension=60, num_class=10):
             tmp = np.dot(xx[j], W) + b
             yy[j] = np.argmax(softmax(tmp))
 
-        X_split[i] = xx.tolist()
-        y_split[i] = yy.tolist()
+        X_split[i].extend(xx.tolist())
+        y_split[i].extend(yy.tolist())
 
         print("{}-th users has {} exampls".format(i, len(y_split[i])))
 
