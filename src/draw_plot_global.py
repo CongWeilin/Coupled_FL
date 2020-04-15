@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pickle
 import numpy as np
+from utils import smooth
 
 fig, axs = plt.subplots()
 
@@ -13,6 +14,7 @@ with open('coupled_0.00.pkl', 'rb') as f:
 
 y = global_acc
 x = np.arange(len(y))
+y = smooth(y)
 axs.plot(x,y,label='Diversity 0 (Coupled_FL)', linestyle='-')
 
 # diversity 0.5
@@ -21,6 +23,7 @@ with open('coupled_0.50.pkl', 'rb') as f:
 
 y = global_acc
 x = np.arange(len(y))
+y = smooth(y)
 axs.plot(x,y,label='Diversity 0.5 (Coupled_FL)', linestyle='-')
 
 # diversity 1
@@ -29,6 +32,7 @@ with open('coupled_1.00.pkl', 'rb') as f:
 
 y = global_acc
 x = np.arange(len(y))
+y = smooth(y)
 axs.plot(x,y,label='Diversity 1 (Coupled_FL)', linestyle='-')
 
 """
@@ -40,6 +44,7 @@ with open('fedavg_0.00.pkl', 'rb') as f:
 
 y = global_acc
 x = np.arange(len(y))
+y = smooth(y)
 axs.plot(x,y,label='Diversity 0 (FedAvg)', linestyle='--')
 
 # diversity 0.5
@@ -48,6 +53,7 @@ with open('fedavg_0.50.pkl', 'rb') as f:
 
 y = global_acc
 x = np.arange(len(y))
+y = smooth(y)
 axs.plot(x,y,label='Diversity 0.5 (FedAvg)', linestyle='--')
 
 # diversity 1
@@ -56,7 +62,40 @@ with open('fedavg_1.00.pkl', 'rb') as f:
 
 y = global_acc
 x = np.arange(len(y))
+y = smooth(y)
 axs.plot(x,y,label='Diversity 1 (FedAvg)', linestyle='--')
+
+"""
+APFL
+"""
+# diversity 0
+with open('apfl_0.00.pkl', 'rb') as f:
+    global_acc, global_loss, local_acc, local_loss, train_loss = pickle.load(f)
+
+y = global_acc
+x = np.arange(len(y))
+y = smooth(y)
+axs.plot(x,y,label='Diversity 0 (APFL)', linestyle='-')
+
+# diversity 0.5
+with open('apfl_0.50.pkl', 'rb') as f:
+    global_acc, global_loss, local_acc, local_loss, train_loss = pickle.load(f)
+
+y = global_acc
+x = np.arange(len(y))
+y = smooth(y)
+axs.plot(x,y,label='Diversity 0.5 (APFL)', linestyle='-')
+
+# diversity 1
+with open('apfl_1.00.pkl', 'rb') as f:
+    global_acc, global_loss, local_acc, local_loss, train_loss = pickle.load(f)
+
+y = global_acc
+x = np.arange(len(y))
+y = smooth(y)
+axs.plot(x,y,label='Diversity 1 (APFL)', linestyle='-')
+
+
 
 """
 Draw

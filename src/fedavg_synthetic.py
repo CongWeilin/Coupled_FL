@@ -14,63 +14,13 @@ import torch.nn.functional as F
 
 from synthetic_dataloader import train_val_dataloader, SyntheticDataset
 from gd import GD
+from model_utils import MLP
+from model_utils import inference, inference_personal, average_state_dicts
 
 torch.manual_seed(0)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 np.random.seed(0)
-
-##########################################################################
-##########################################################################
-##########################################################################
-
-class MLP(nn.Module):
-    def __init__(self, dim_in, dim_out):
-        super(MLP, self).__init__()
-        self.layer_hidden = nn.Linear(dim_in, dim_out)
-
-    def forward(self, x):
-        x = self.layer_hidden(x)
-        return F.log_softmax(x, dim=1)
-    
-def inference(model, dataloader, criterion, device):
-    """ Returns the inference accuracy and loss.
-    """
-
-    model.eval()
-    total, correct = 0.0, 0.0
-    loss = list()
-    
-    for batch_idx, (images, labels) in enumerate(dataloader):
-        images, labels = images.to(device), labels.to(device)
-
-        # Inference
-        outputs = model(images)
-        batch_loss = criterion(outputs, labels)
-        loss += [batch_loss.item()]
-
-        # Prediction
-        _, pred_labels = torch.max(outputs, 1)
-        pred_labels = pred_labels.view(-1)
-        correct += torch.sum(torch.eq(pred_labels, labels)).item()
-        total += len(labels)
-
-    accuracy = correct/total
-    loss = sum(loss)/len(loss)
-    return accuracy, loss
-
-def average_state_dicts(w, weight):
-    """
-    Returns the average of the weights or gradients.
-    """
-    weight = weight/sum(weight)
-    
-    w_avg = copy.deepcopy(w[0])
-    for key in w_avg.keys():
-        w_avg[key] = torch.zeros_like(w_avg[key])
-        for i in range(len(w)):
-            w_avg[key] = w_avg[key] + w[i][key]*weight[i]
-    return w_avg
 
 ##########################################################################
 ##########################################################################
@@ -95,11 +45,7 @@ def main(config_path):
         local_model_list.append(local_model)
         local_optim_list.append(local_optim)
 
-    global_init_weight = copy.deepcopy(global_model.state_dict())
-    local_model_init_weight_list = []
-    for local_id in range(config['num_devices']):
-        local_weight = copy.deepcopy(local_model_list[local_id].state_dict())
-        local_model_init_weight_list.append(local_weight)
+    init_weight = copy.deepcopy(global_model.state_dict())
 
     criterion = nn.NLLLoss().to(device)
     
@@ -127,9 +73,9 @@ def main(config_path):
     """
     load initial value
     """
-    global_model.load_state_dict(global_init_weight)
+    global_model.load_state_dict(init_weight)
     for local_id in range(config['num_devices']):
-        local_model_list[local_id].load_state_dict(local_model_init_weight_list[local_id])
+        local_model_list[local_id].load_state_dict(init_weight)
 
     """
     start training

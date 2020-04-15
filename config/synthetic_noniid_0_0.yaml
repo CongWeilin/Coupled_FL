@@ -1,13 +1,14 @@
 alpha: 0
 beta: 0
-gamma: 0.2
+c_gamma: 0.9
+p_alpha: 0.5
 device: cuda:0
 dimension: 60
 global_iters: 200
 iid: 0
 local_batch_size: 10
 local_iters: 20
-lr: 0.01
+lr: 0.1
 num_active_devices: 10
 num_classes: 10
 num_devices: 30

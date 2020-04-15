@@ -44,6 +44,14 @@ def main(config_path):
         local_optim = GD(local_model.parameters(), lr=config['lr'], weight_decay=1e-4)
         local_model_list.append(local_model)
         local_optim_list.append(local_optim)
+        
+    personal_model_list = []
+    personal_optim_list = []
+    for local_id in range(config['num_devices']):
+        personal_model = MLP(dim_in=config['dimension'], dim_out=config['num_classes']).to(device)
+        personal_optim = GD(personal_model.parameters(), lr=config['lr'], weight_decay=1e-4)
+        personal_model_list.append(personal_model)
+        personal_optim_list.append(personal_optim)
 
     init_weight = copy.deepcopy(global_model.state_dict())
 
@@ -76,6 +84,7 @@ def main(config_path):
     global_model.load_state_dict(init_weight)
     for local_id in range(config['num_devices']):
         local_model_list[local_id].load_state_dict(init_weight)
+        personal_model_list[local_id].load_state_dict(init_weight)
 
     """
     start training
@@ -102,7 +111,6 @@ def main(config_path):
         # get the local grad for each device
         
         for local_iter in range(config['local_iters']): # E
-            local_grad_list = []
             cur_local_loss = []
             cur_local_acc = []
             cur_train_loss = []
@@ -121,37 +129,39 @@ def main(config_path):
                 log_probs = local_model_list[local_id](inputs)
                 loss = criterion(log_probs, labels)
                 loss.backward()
-                cur_train_loss.append(loss.item())
+                # cur_train_loss.append(loss.item())
 
-                local_grads = dict()
-                for key, val in local_model_list[local_id].named_parameters():
-                    local_grads[key] = val.grad.data.detach()
-                local_grad_list.append(local_grads)
-                
-            if local_iter == 0:
-                avg_local_grad = average_state_dicts(local_grad_list, weight_per_user[activate_devices])
-                
-            for local_id in activate_devices:
-                for key, param in local_model_list[local_id].named_parameters():
-                    param.grad.data = param.grad.data * (1-config['c_gamma']) + avg_local_grad[key] * config['c_gamma']
                 local_optim_list[local_id].step()
+                
+                # train personalize model
+                personal_model_list[local_id].train()
+                personal_model_list[local_id].zero_grad()
+                log_probs_1 = local_model_list[local_id](inputs)
+                log_probs_2 = personal_model_list[local_id](inputs)
+                log_probs = (1-config['p_alpha']) * log_probs_1 + config['p_alpha'] * log_probs_2
+                loss = criterion(log_probs, labels)
+                loss.backward()
+                cur_train_loss.append(loss.item())
+                
+                personal_optim_list[local_id].step()
+
                 # test local model
-                acc, loss = inference(local_model_list[local_id], validloader_list[local_id], criterion, device)
+                acc, loss = inference_personal(local_model_list[local_id], personal_model_list[local_id], 
+                                               config['p_alpha'], validloader_list[local_id], criterion, device)
                 cur_local_loss.append(loss)
                 cur_local_acc.append(acc)
-                
+
             cur_local_loss = sum(cur_local_loss)/len(cur_local_loss)
             cur_local_acc = sum(cur_local_acc)/len(cur_local_acc)
             cur_train_loss = sum(cur_train_loss)/len(cur_train_loss)
-            # print('local train loss %.2f, valid loss %.2f, valid acc %.2f'%(cur_train_loss, cur_local_loss, cur_local_acc))
             local_loss.append(cur_local_loss)
             local_acc.append(cur_local_acc)
             train_loss.append(cur_train_loss)
 
         # update learning rate
         for local_id in activate_devices:
-            local_optim_list[local_id].inverse_prop_decay_learning_rate(global_iter)
-            
+            local_optim_list[local_id].inverse_prop_decay_learning_rate(global_iter) 
+
         # average local models 
         local_weight_list = [local_model.state_dict() for local_model in local_model_list]
         avg_local_weight = average_state_dicts(local_weight_list, weight_per_user)
@@ -172,7 +182,7 @@ def main(config_path):
     """
     save results
     """
-    with open('coupled_%.2f.pkl'%config['beta'], 'wb') as f:
+    with open('apfl_%.2f.pkl'%config['beta'], 'wb') as f:
         pickle.dump([global_acc, global_loss, local_acc, local_loss, train_loss], f)
         
 
