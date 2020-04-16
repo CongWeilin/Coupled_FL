@@ -54,7 +54,10 @@ def main(config_path):
     personal_model_list = []
     personal_optim_list = []
     for local_id in range(config['num_devices']):
-        personal_model = MLP(dim_in=config['dimension'], dim_out=config['num_classes']).to(device)
+        personal_model = MLP(dataset=config['dataset'], 
+                            num_layers=config['num_layers'],
+                            hidden_size=config['hidden_size'],
+                            drop_rate=config['drop_rate']).to(device)
         personal_optim = GD(personal_model.parameters(), lr=config['lr'], weight_decay=1e-4)
         personal_model_list.append(personal_model)
         personal_optim_list.append(personal_optim)
