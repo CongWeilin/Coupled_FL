@@ -4,3 +4,4 @@ src/__pycache__
 src/test_code
 src/*pdf
 src/*.pkl
+data/*
