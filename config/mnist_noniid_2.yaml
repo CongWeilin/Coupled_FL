@@ -1,0 +1,14 @@
+dataset: mnist
+c_gamma: 0.9
+p_alpha: 0.5
+device: cuda:0
+hidden_size: 64
+num_layers: 1
+global_iters: 200
+drop_rate: 0.5
+noniid_level: 2
+local_batch_size: 10
+local_iters: 20
+lr: 1.0
+num_active_devices: 10
+num_devices: 100

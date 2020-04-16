@@ -1,3 +1,6 @@
+"""
+make the figure smooth
+"""
 def smooth(scalars, weight=0.8):  # Weight between 0 and 1
     if len(scalars) == 0:
         return scalars

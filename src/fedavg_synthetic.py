@@ -14,7 +14,7 @@ import torch.nn.functional as F
 
 from synthetic_dataloader import train_val_dataloader, SyntheticDataset
 from gd import GD
-from model_utils import MLP
+from model_utils import Perceptron
 from model_utils import inference, inference_personal, average_state_dicts
 
 torch.manual_seed(0)
@@ -35,12 +35,12 @@ def main(config_path):
     """
     Setup models
     """
-    global_model = MLP(dim_in=config['dimension'], dim_out=config['num_classes']).to(device)
+    global_model = Perceptron(dim_in=config['dimension'], dim_out=config['num_classes']).to(device)
     
     local_model_list = []
     local_optim_list = []
     for local_id in range(config['num_devices']):
-        local_model = MLP(dim_in=config['dimension'], dim_out=config['num_classes']).to(device)
+        local_model = Perceptron(dim_in=config['dimension'], dim_out=config['num_classes']).to(device)
         local_optim = GD(local_model.parameters(), lr=config['lr'], weight_decay=1e-4)
         local_model_list.append(local_model)
         local_optim_list.append(local_optim)

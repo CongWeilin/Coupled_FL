@@ -4,7 +4,7 @@ import numpy as np
 from utils import smooth
 
 fig, axs = plt.subplots()
-
+STEP = 20
 """
 Coupled_FL
 """
@@ -12,7 +12,7 @@ Coupled_FL
 with open('coupled_0.00.pkl', 'rb') as f:
     global_acc, global_loss, local_acc, local_loss, train_loss = pickle.load(f)
 
-select = np.arange(len(local_acc), step=20)
+select = np.arange(len(local_acc), step=STEP)
 x = np.arange(len(select))
 y = [local_acc[i] for i in select]
 y = smooth(y)
@@ -22,7 +22,7 @@ axs.plot(x,y,label='Diversity 0 (Coupled_FL)', linestyle='-')
 with open('coupled_0.50.pkl', 'rb') as f:
     global_acc, global_loss, local_acc, local_loss, train_loss = pickle.load(f)
 
-select = np.arange(len(local_acc), step=20)
+select = np.arange(len(local_acc), step=STEP)
 x = np.arange(len(select))
 y = [local_acc[i] for i in select]
 y = smooth(y)
@@ -32,7 +32,7 @@ axs.plot(x,y,label='Diversity 0.5 (Coupled_FL)', linestyle='-')
 with open('coupled_1.00.pkl', 'rb') as f:
     global_acc, global_loss, local_acc, local_loss, train_loss = pickle.load(f)
 
-select = np.arange(len(local_acc), step=20)
+select = np.arange(len(local_acc), step=STEP)
 x = np.arange(len(select))
 y = [local_acc[i] for i in select]
 y = smooth(y)
@@ -45,7 +45,7 @@ FedAvg
 with open('fedavg_0.00.pkl', 'rb') as f:
     global_acc, global_loss, local_acc, local_loss, train_loss = pickle.load(f)
 
-select = np.arange(len(local_acc), step=20)
+select = np.arange(len(local_acc), step=STEP)
 x = np.arange(len(select))
 y = [local_acc[i] for i in select]
 y = smooth(y)
@@ -55,7 +55,7 @@ axs.plot(x,y,label='Diversity 0 (FedAvg)', linestyle='--')
 with open('fedavg_0.50.pkl', 'rb') as f:
     global_acc, global_loss, local_acc, local_loss, train_loss = pickle.load(f)
 
-select = np.arange(len(local_acc), step=20)
+select = np.arange(len(local_acc), step=STEP)
 x = np.arange(len(select))
 y = [local_acc[i] for i in select]
 y = smooth(y)
@@ -65,7 +65,7 @@ axs.plot(x,y,label='Diversity 0.5 (FedAvg)', linestyle='--')
 with open('fedavg_1.00.pkl', 'rb') as f:
     global_acc, global_loss, local_acc, local_loss, train_loss = pickle.load(f)
 
-select = np.arange(len(local_acc), step=20)
+select = np.arange(len(local_acc), step=STEP)
 x = np.arange(len(select))
 y = [local_acc[i] for i in select]
 y = smooth(y)
@@ -78,7 +78,7 @@ APFL
 with open('apfl_0.00.pkl', 'rb') as f:
     global_acc, global_loss, local_acc, local_loss, train_loss = pickle.load(f)
 
-select = np.arange(len(local_acc), step=20)
+select = np.arange(len(local_acc), step=STEP)
 x = np.arange(len(select))
 y = [local_acc[i] for i in select]
 y = smooth(y)
@@ -88,7 +88,7 @@ axs.plot(x,y,label='Diversity 0 (APFL)', linestyle='-')
 with open('apfl_0.50.pkl', 'rb') as f:
     global_acc, global_loss, local_acc, local_loss, train_loss = pickle.load(f)
 
-select = np.arange(len(local_acc), step=20)
+select = np.arange(len(local_acc), step=STEP)
 x = np.arange(len(select))
 y = [local_acc[i] for i in select]
 y = smooth(y)
@@ -98,7 +98,7 @@ axs.plot(x,y,label='Diversity 0.5 (APFL)', linestyle='-')
 with open('apfl_1.00.pkl', 'rb') as f:
     global_acc, global_loss, local_acc, local_loss, train_loss = pickle.load(f)
 
-select = np.arange(len(local_acc), step=20)
+select = np.arange(len(local_acc), step=STEP)
 x = np.arange(len(select))
 y = [local_acc[i] for i in select]
 y = smooth(y)
